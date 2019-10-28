@@ -14,7 +14,7 @@ public class IPTest {
         //1、创建属性对象
         Properties p = new Properties();//和Map一样，只不过key和value只能存储字符串。key不能重复，如果key重复，则value覆盖。
         //2、创建输入流
-        FileInputStream fis = new FileInputStream("E:\\Java\\JavaTest\\228.IO&Properities\\src\\dbinfo.properties");
+        FileInputStream fis = new FileInputStream(".\\src\\dbinfo.properties");
         //3、将fis流中所有数据加载到属性对象中
         p.load(fis);//所以现在属性对象中有(key=username，value=scott)
         //4、关闭流
