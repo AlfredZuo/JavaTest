@@ -1,3 +1,4 @@
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -11,6 +12,7 @@ public class UserDefinedDeComplier {
         //Field[] fs = c.getFields();
         Field[] fs = c.getDeclaredFields();
         Method[] ms = c.getDeclaredMethods();
+        Constructor[] cs = c.getDeclaredConstructors();
         /*
         System.out.println(fs.length);
         System.out.println(fs[0].getName());
@@ -43,15 +45,17 @@ public class UserDefinedDeComplier {
         StringBuffer sb = new StringBuffer();
         sb.append(Modifier.toString(c.getModifiers())+" class "+ c.getSimpleName()+ " {\r\n");
         //属性部分
+        sb.append("\t//Fields Part:\r\n");
         for(Field field:fs){
             sb.append("\t"+ Modifier.toString(field.getModifiers()))
                     .append(Modifier.toString(field.getModifiers())==""? "":" ")                  //如果修饰符列表是缺省的，则不需要补充空格
                     .append(field.getType().getSimpleName()+" ")
                     .append(field.getName()+";\r\n");
         }
-        sb.append("\r\n");
 
         //方法部分
+        //TODO：目前是乱序的，后续再根据需要整理顺序，可以使用SortedMap
+        sb.append("\r\n\t//Methods Part:\r\n");
         for(Method method:ms){
             sb.append("\t"+Modifier.toString(method.getModifiers()))
                     .append(Modifier.toString(method.getModifiers())==""? "":" ")
@@ -71,6 +75,29 @@ public class UserDefinedDeComplier {
 
             sb.append("){}\r\n");
         }
+
+
+        //构造方法部分
+        //TODO：目前是乱序的，后续再根据需要整理顺序，可以使用SortedMap
+        sb.append("\r\n\t//Constructors Part:\r\n");
+        for(Constructor constructor:cs){
+            sb.append("\t"+Modifier.toString(constructor.getModifiers()))
+                    .append(Modifier.toString(constructor.getModifiers())==""? "":" ")
+                    .append(constructor.getName()+"(");
+            //形式参数列表。由于处理方式不一样，建议按照老师的方法，使用for循环对逗号进行处理
+            Class[] parameterTypes = constructor.getParameterTypes();
+
+            //这里尽量不要用for(Class ps:parameterTypes)这样的循环，没法特殊处理逗号
+            for(int i = 0 ; i < parameterTypes.length ; i++){
+                if(i == parameterTypes.length-1){
+                    sb.append(parameterTypes[i].getSimpleName());
+                }else{
+                    sb.append(parameterTypes[i].getSimpleName()+",");
+                }
+            }
+            sb.append("){}\r\n");
+        }
+
 
         sb.append("}\r\n");
         System.out.println(sb);
