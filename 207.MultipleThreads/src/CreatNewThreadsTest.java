@@ -2,7 +2,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * 设置两个线程t3和t4，使得两个线程每隔1秒交替输出整数1-20.
+ * 任务一：学习两两种线程的启动方法，以及sleep方法
+ * 任务二：学习使用lock，wait，notifyAll方法，来源于互联网案例
+ * 任务三：设置两个线程t3和t4，使得两个线程每隔1秒交替输出整数1-20.
  */
 
 public class CreatNewThreadsTest {
@@ -17,7 +19,11 @@ public class CreatNewThreadsTest {
 
         Thread t = Thread.currentThread();
         System.out.println(t.getName());
-        System.out.println("======================================================");
+        System.out.println("========================================================");
+        System.out.println("=========================task1==========================");
+        System.out.println("=============two ways for initial a thread==============");
+        System.out.println("========================================================");
+        System.out.println("========================================================");
 
         Thread t1 = new NewThreadMethod1st();
         t1.setName("t1");
@@ -39,7 +45,9 @@ public class CreatNewThreadsTest {
 
         Thread.sleep(1000);
         System.out.println("========================================================");
+        System.out.println("=========================task2==========================");
         System.out.println("===================lock，wait，notify===================");
+        System.out.println("========================================================");
         System.out.println("========================================================");
 /*
 
@@ -56,7 +64,7 @@ public class CreatNewThreadsTest {
         /**
          * @LINk https://www.throwable.club/2019/04/30/java-object-wait-notify/#%E9%98%BB%E5%A1%9E%E7%AD%89%E5%BE%85-wait
          *
-         * 关于wait的说明
+         * 关于wait(long timeoutMillis, int nanos)的说明
          * 1、当前线程阻塞等待直到被唤醒，唤醒的情况一般有三种：notify(All)被调用、线程被中断或者在指定了超时阻塞的情况下超过了指定的阻塞时间。
          * 2、当前线程必须获取此对象的监视器锁(monitor lock)，也就是调用阻塞等待方法之前一个线程必须成为此对象的监视器锁的拥有者。
          * 3、调用了wait()方法之后，当前线程会把自身放到当前对象的等待集合(wait-set)，然后释放所有在此对象上的同步声明(then to relinquish any nd all synchronization claims on this object)，谨记只有当前对象上的同步声明会被释放，当前线程在其他对象上的同步锁只有在调用其wait()方法之后才会释放。
@@ -64,15 +72,15 @@ public class CreatNewThreadsTest {
          * 5、如果任意线程在它调用了wait()之前，或者调用过wait()方法之后处于阻塞等待状态，一旦线程调用了Thread#interrupt()，线程就会中断并且抛出InterruptedException异常，线程的中断状态会被清除。InterruptedException异常会延迟到在第4点提到”它对对象的所有同步声明都恢复到以前的状态”的时候抛出。
          * (*)一个线程必须成为此对象的监视器锁的拥有者才能正常调用wait()系列方法，也就是wait()系列方法必须在同步代码块(synchronized代码块)中调用，否则会抛出IllegalMonitorStateException异常，这一点是初学者或者不了解wait()的机制的开发者经常会犯的问题。
          *
-         * 关于notify的说明
+         * 关于notify()的说明
          * 1、唤醒一个阻塞等待在此对象监视器上的线程，(如果存在多个阻塞线程)至于选择哪一个线程进行唤醒是任意的，取决于具体的现实，一个线程通过调用wait()方法才能阻塞在对象监视器上。
          * 2、被唤醒的线程并不会马上继续执行，直到当前线程(也就是当前调用了notify()方法的线程)释放对象上的锁。被唤醒的线程会与其他线程竞争在对象上进行同步(换言之只有获得对象的同步控制权才能继续执行)，在成为下一个锁定此对象的线程时，被唤醒的线程没有可靠的特权或劣势。
          * 3、此方法只有在一个线程获取了此对象监视器的所有权(the owner)的时候才能调用，具体就是：同步方法中、同步代码块中或者静态同步方法中。否则，会抛出IllegalMonitorStateException异常。
          *
-         * 关于notifyAll的说明
+         * 关于notifyAll()的说明
          * 唤醒所有阻塞等待在此对象监视器上的线程，一个线程通过调用wait()方法才能阻塞在对象监视器上。
          *
-         * 经验：
+         * 经验总结：
          * 1、在线程进入synchronized方法或者代码块，相当于获取监视器锁成功，如果此时成功调用wait()系列方法，那么它会立即释放监视器锁，并且添加到等待集合(Wait Set)中进行阻塞等待。
          * 2、由于已经有线程释放了监视器锁，那么在另一个线程进入synchronized方法或者代码块之后，它可以调用notify(All)方法唤醒等待集合中正在阻塞的线程，但是这个唤醒操作并不是调用notify(All)方法后立即生效，而是在该线程退出synchronized方法或者代码块之后才生效。
          * 3、从wait()方法阻塞过程中被唤醒的线程会竞争监视器目标对象的控制权，一旦重新控制了对象，那么线程的同步状态就会恢复到步入synchronized方法或者代码块时候的状态(也就是成功获取到对象监视器锁时候的状态)，这个时候线程才能够继续执行。
@@ -80,12 +88,38 @@ public class CreatNewThreadsTest {
          */
 
         final Lock lock = new Lock();
+        WaitRunnable wr1 = new WaitRunnable(lock);
+        WaitRunnable wr2 = new WaitRunnable(lock);
+        NotifyRunnable nr = new NotifyRunnable(lock);
 
-        new Thread(new WaitRunnable(lock), "WaitThread-1").start();
-        new Thread(new WaitRunnable(lock), "WaitThread-2").start();
+        new Thread(wr1, "WaitThread-1").start();
+        new Thread(wr2, "WaitThread-2").start();
         Thread.sleep(5000);
-        new Thread(new NotifyRunnable(lock), "NotifyThread").start();
-        Thread.sleep(Integer.MAX_VALUE);//让main线程一直睡觉
+        new Thread(nr, "NotifyThread").start();
+
+        Thread.sleep(1000*60);//让main线程一直睡觉，直到task2全部执行完毕
+
+
+
+
+        System.out.println("========================================================");
+        System.out.println("=========================task3==========================");
+        System.out.println("===================two threads print====================");
+        System.out.println("========================================================");
+        System.out.println("========================================================");
+
+        ThreadPrint tp3 = new ThreadPrint(lock);
+        ThreadPrint tp4 = new ThreadPrint(lock);
+        Thread t3 = new Thread(tp3);
+        Thread t4 = new Thread(tp4);
+        t3.setName("t3");
+        t4.setName("t4");
+
+        t3.start();
+        Thread.sleep(10);
+        t4.start();
+
+        System.out.println(String.format("[%s]-线程[%s]时间到，【exit】", F.format(LocalDateTime.now()), Thread.currentThread().getName()));
 
     }
 
@@ -99,12 +133,13 @@ public class CreatNewThreadsTest {
     private static class WaitRunnable implements Runnable {
 
         private final Lock lock;
+        private int i = 1;
 
         @Override
         public void run() {
             synchronized (lock) {
                 System.out.println(String.format("[%s]-线程[%s]获取锁成功,准备执行wait方法", F.format(LocalDateTime.now()), Thread.currentThread().getName()));
-                while (true) {
+                while (i<=10) {
                     try {
                         Thread.sleep(1000);
                         System.out.println(String.format("[%s]-线程[%s]执行wait方法", F.format(LocalDateTime.now()), Thread.currentThread().getName()));
@@ -114,14 +149,17 @@ public class CreatNewThreadsTest {
                     } catch (InterruptedException e) {
                         //ignore
                     }
-                    System.out.println(String.format("[%s]-线程[%s]从wait中唤醒,执行任务后sleep(500)", F.format(LocalDateTime.now()), Thread.currentThread().getName()));
+                    System.out.println(String.format("[%s]-线程[%s]从wait中唤醒,第[%s]次执行任务后sleep(500)", F.format(LocalDateTime.now()), Thread.currentThread().getName(),i));
                     try {
                         Thread.sleep(500);
                     } catch (InterruptedException e) {
                         //ignore
                     }
                     //break;
+                    i++;
                 }
+                System.out.println(String.format("[%s]-线程[%s]【exit】", F.format(LocalDateTime.now()), Thread.currentThread().getName()));
+                return;
             }
         }
 
@@ -135,11 +173,12 @@ public class CreatNewThreadsTest {
     private static class NotifyRunnable implements Runnable {
 
         private final Lock lock;
+        private int i = 1;
 
         @Override
         public void run() {
             synchronized (lock) {
-                while (true){
+                while (i<=10){
                     System.out.println(String.format("[%s]-线程[%s]获取锁成功,执行notifyAll方法，唤起所有wait的线程", F.format(LocalDateTime.now()), Thread.currentThread().getName()));
                     lock.notifyAll();
 
@@ -148,12 +187,13 @@ public class CreatNewThreadsTest {
                         System.out.println(String.format("[%s]-线程[%s]先使用wait(5000)释放锁，休眠5000ms再获取", F.format(LocalDateTime.now()), Thread.currentThread().getName()));
                         /*一旦进入wait状态，synchronized的代码权就会交给被唤醒的其他两个进程，并由他们竞争获取*/
                         lock.wait(5000);
-                        System.out.println(String.format("[%s]-线程[%s]从wait中返回了\r\n", F.format(LocalDateTime.now()), Thread.currentThread().getName()));
+                        System.out.println(String.format("[%s]-线程[%s]第[%s]次从wait中返回了\r\n", F.format(LocalDateTime.now()), Thread.currentThread().getName(),i));
                     } catch (InterruptedException e) {
                         //ignore
                     }
-                    //System.out.println(String.format("[%s]-线程[%s]准备exit", F.format(LocalDateTime.now()), Thread.currentThread().getName()));
+                    i++;
                 }
+                System.out.println(String.format("[%s]-线程[%s]【exit】\r\n", F.format(LocalDateTime.now()), Thread.currentThread().getName()));
             }
         }
 
