@@ -20,7 +20,7 @@ public class Main {
          * Java 8 的两个接口 Runnable 和 Callable 都添加了 @FunctionalInterface 注解。
          * 因此，我们可以直接使用 Lambda 表达式来实现 run() 和 call() 方法。
          * 这意味这我们可以使用一个 Lambda 表达式来创建一个 Runnable 实例。
-         * 举例如下：
+         * 举例如下：@LINK https://www.twle.cn/t/372
          *
          * Runnable r = () -> System.out.println("Hello World!");
          * Thread th = new Thread(r);
