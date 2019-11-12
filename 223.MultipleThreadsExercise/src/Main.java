@@ -1,7 +1,8 @@
 import java.util.stream.IntStream;
 
 /**
- * 场景入口类：
+ * 场景入口类，参考如下链接
+ * @LINK https://www.throwable.club/2019/04/30/java-object-wait-notify/#%E9%98%BB%E5%A1%9E%E9%98%9F%E5%88%97%E5%AE%9E%E7%8E%B0
  */
 
 public class Main {
