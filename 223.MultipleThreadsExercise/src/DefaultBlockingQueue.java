@@ -31,14 +31,18 @@ public class DefaultBlockingQueue<T> implements BlockingQueue<T> {
         items[putIndex] = value;
         /**
          * items的长度实际就是this.elements的长度，是在构造器中创建Queue对象时指定的，默认值是5
-         * 一开始是按照数组顺序存储的，如果存到队列的最后一位，就要从队列的第0位开始继续存储，
+         * 一开始是按照数组顺序存储的，如果存到队列的最后一位，就要从队列的第0位开始继续存储，周而复始
          * 不用担心第0位还有数据，因为在一开始的while循环中，已经对count的数量进行了判断
          */
         if (++putIndex == items.length) {
             putIndex = 0;
         }
         count++;
-        //因为上面已经存储了数据，这个时候就需要通知消费队列消费
+        /**
+         * 因为上面已经存储了数据，这个时候就需要通知消费队列消费
+         * 检查线程锁的原因是：如果此时如果正好有其他线程正在消费这个数据，就不应该继续通知，
+         * 否则会造成另外进程被唤醒后，实际队列中没有数据的异常情况
+         */
         synchronized (notEmpty) {
             notEmpty.notify();
         }
@@ -57,14 +61,18 @@ public class DefaultBlockingQueue<T> implements BlockingQueue<T> {
         items[takeIndex] = null;    //取出（消费）后就将队列中指向的对象清0
         /**
          * items的长度实际就是this.elements的长度，是在构造器中创建Queue对象时指定的，默认值是5
-         * 一开始是按照数组顺序消费的，如果取到队列的最后一位，就要从队列的第0位开始继续消费，
+         * 一开始是按照数组顺序消费的，如果取到队列的最后一位，就要从队列的第0位开始继续消费，周而复始
          * 不用担心第0位没有数据，因为在一开始的while循环中，已经对count的数量进行了判断
          */
         if (++takeIndex == items.length) {
             takeIndex = 0;
         }
         count--;
-        //上面已经消费了数据，队列中空了一位，可以通知生产者继续生产
+        /**
+         * 因为上面已经消费了数据，队列中空了一位，可以通知生产者继续生产
+         * 检查线程锁的原因是：如果此时如果正好有其他线程正在生产这个数据，就不应该继续通知，
+         * 否则会造成另外进程（假设有多个生产线程）被唤醒后，实际队列中已经满的异常情况
+         */
         synchronized (notFull) {
             notFull.notify();
         }
