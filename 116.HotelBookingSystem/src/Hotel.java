@@ -59,14 +59,16 @@ public class Hotel {
         return "9999";
     }
 
-    void checkout(String no){
+    boolean checkout(String no){
         int rows = Integer.parseInt(no) / 100;
         int cols = Integer.parseInt(no) % 100;
         if(rooms[rows][cols].isUse){
             rooms[rows][cols].isUse = false;
             System.out.println("房间"+rooms[rows][cols].no+"状态被设置为空闲");
+            return true;
         }else{
             System.out.println("状态错误，房间"+rooms[rows][cols].no+"状态是空闲，无法CheckOut，请重新输入");
+            return false;
         }
     }
 
@@ -80,7 +82,7 @@ public class Hotel {
                 }else if(i==4&&j==0){
                     System.out.println("======================================豪华间房间状态======================================");
                 }
-                System.out.print("房间("+rooms[i][j].no+")"+(rooms[i][j].isUse?"使用； ":"空闲； "));
+                System.out.print("房间("+rooms[i][j].no+")"+(rooms[i][j].isUse?"!!使用； ":"~~空闲； "));
             }
             System.out.println();
         }
